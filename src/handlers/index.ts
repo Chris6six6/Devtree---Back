@@ -120,3 +120,38 @@ export const uploadImage = async (req: Request, res: Response) => {
         return;
     }
 }
+
+export const getUserByHandle = async (req: Request, res: Response) => {
+    try {
+        const { handle } = req.params;
+        const user = await User.findOne({ handle }).select('-_id -__v -email -password');
+        if (!user) {
+            const error = new Error('Usuario no encontrado');
+            res.status(404).json({ error: error.message });
+            return;
+        }
+        res.json(user);
+    } catch (e) {
+        const error = new Error('Hubo un error');
+        res.status(500).json({ error: error.message })
+        return;
+    }
+}
+
+export const SearchByHandle = async (req: Request, res: Response) => {
+    try {
+        const { handle } = req.body;
+        const UserExist = await User.findOne({ handle });
+
+        if (UserExist) {
+            const error = new Error(`El usuario ${handle} ya existe`);
+            res.status(409).json({ error: error.message });
+            return;
+        }
+        res.send(`${handle} esta disponible`);
+    } catch (e) {
+        const error = new Error('Hubo un error');
+        res.status(500).json({ error: error.message })
+        return;
+    }
+}
